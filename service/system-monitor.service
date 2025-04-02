@@ -1,0 +1,13 @@
+[Unit]
+Description=System Resource Monitor
+After=network.target
+
+[Service]
+ExecStart=sudo /usr/bin/python3 /<DIR_TO_CUR_PRJ>/system-monitor/src/monitor.py
+Restart=always
+RestartSec=10
+User=root
+Environment="EMAIL_PASSWORD=EMPTY_HERE_STORE_IN_CODE"
+
+[Install]
+WantedBy=multi-user.target
