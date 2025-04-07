@@ -3,7 +3,7 @@ Copyright (c) 2025 by Albresky, All Rights Reserved.
 
 Author: Albresky albre02@outlook.com
 Date: 2025-04-02 16:36:25
-LastEditTime: 2025-04-02 17:26:12
+LastEditTime: 2025-04-07 18:18:26
 FilePath: /system-monitor/src/monitor.py
 
 Description: 
@@ -20,6 +20,19 @@ logging.basicConfig(level=logging.INFO,
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                    filename='/var/log/system-monitor.log')
 logger = logging.getLogger(__name__)
+
+last_email_sent = {}
+
+# 邮件发送间隔时间（秒）
+EMAIL_INTERVAL = 60
+with open('email.conf', 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        if line.startswith('INTERVAL'):
+            EMAIL_INTERVAL = int(line.split('=')[1].strip())
+            break
+
+logger.info(f"邮件发送间隔设置为 {EMAIL_INTERVAL} 秒")
 
 def monitor_system_resources():
     """持续监控系统资源并在超过阈值时发送警报"""
@@ -66,10 +79,19 @@ def handle_resource_alert(resource_type):
             
         logger.info(f"用户 {username} 在 {resource_type} 资源上使用率最高")
         
+        current_time = time.time()
+        if username in last_email_sent:
+            time_since_last_email = current_time - last_email_sent[username]
+            if time_since_last_email < EMAIL_INTERVAL:
+                logger.info(f"跳过发送邮件给用户 {username}，距离上次发送仅过去 {time_since_last_email:.1f} 秒，少于设定的间隔 {EMAIL_INTERVAL} 秒")
+                return
+        
         # 发送通知邮件
         result = send_notification_email(username, resource_type, processes)
         if result:
             logger.info(f"成功发送通知邮件给用户 {username}")
+            # 更新用户的邮件发送时间
+            last_email_sent[username] = current_time
         else:
             logger.error(f"发送通知邮件给用户 {username} 失败")
     except Exception as e:

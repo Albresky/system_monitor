@@ -20,6 +20,7 @@ EMAIL_SENDER = "admin@example.cn"
 EMAIL_PASSWORD = 'TOKEN_OR_PASSWD_OF_THE_SENDER_EMAIL'
 SMTP_SERVER = "SENDER_EMAIL_SERVER"
 SMTP_PORT = 465 # SENDER_EMAIL_PORT
+INTERVAL = 60 # Email notification interval in seconds
 ```
 
 Document the email addresses of the users to be monitored in the `/usr/tools/contacts.conf` file, with one email address per line. For example:
